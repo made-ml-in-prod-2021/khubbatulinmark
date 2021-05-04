@@ -61,7 +61,7 @@ Project Organization
 ------------
 Cостояние | Описание | Баллы |
 --- | --- | ---
- <li> - [x] </li> | Назовите ветку homework1 | 1
+<input type="checkbox" disabled checked /> | Назовите ветку homework1 | 1
  - [x] | положите код в папку src | 0
 
 
