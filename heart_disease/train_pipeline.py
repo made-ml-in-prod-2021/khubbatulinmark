@@ -47,7 +47,6 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
 def prepare_val_features_for_predict(
     train_features: pd.DataFrame, val_features: pd.DataFrame
 ):
-    # small hack to work with categories
     train_features, val_features = train_features.align(
         val_features, join="left", axis=1
     )

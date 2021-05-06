@@ -7,24 +7,38 @@ formatters:
     format: "%(asctime)s %(levelname)s %(message)s"
     datefmt: "%Y-%m-%d %H:%M:%S"
 handlers:
-  debug_handler:
+  debug_handler_train:
     class: logging.FileHandler
     filename: logs/train-pipeline.log
     level: DEBUG
     formatter: simple
-  warn_handler:
+  warn_handler_train:
     class: logging.FileHandler
     filename: logs/train-pipeline.warn
+    level: WARNING
+    formatter: simple
+  debug_handler_report:
+    class: logging.FileHandler
+    filename: logs/make-report.log
+    level: DEBUG
+    formatter: simple
+  warn_handler_report:
+    class: logging.FileHandler
+    filename: logs/make-report.warn
     level: WARNING
     formatter: simple
 loggers:
   train_pipeline:
     level: DEBUG
-    handlers: [debug_handler, warn_handler]
+    handlers: [debug_handler_train, warn_handler_train]
+    propagate: no
+  make_report:
+    level: DEBUG
+    handlers: [debug_handler_report, warn_handler_report]
     propagate: no
 root:
   level: DEBUG
-  handlers: [debug_handler]
+  handlers: [debug_handler_train]
 
 capture: |2
                               __  __          _____  ______
