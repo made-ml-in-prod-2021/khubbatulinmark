@@ -1,6 +1,6 @@
-input_data_path: "data/raw/train.csv"
-output_model_path: "models/model.pkl"
-metric_path: "models/metrics.json"
+input_data_path: "data/raw/heart.csv"
+output_model_path: "models/log_reg.pkl"
+metric_path: "metrics/metrics_log_reg.json"
 splitting_params:
   val_size: 0.25
   random_state: 42

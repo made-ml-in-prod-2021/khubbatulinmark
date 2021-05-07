@@ -1,13 +1,12 @@
 from typing import List
 
-import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
 
-from heart_disease.data.make_dataset import read_data
-from heart_disease.entities.feature_params import FeatureParams
-from heart_disease.features.build_features import make_features, extract_target, build_transformer
+from src.data.make_dataset import read_data
+from src.entities.feature_params import FeatureParams
+from src.features.build_features import build_transformer, extract_target, make_features
 
 
 @pytest.fixture
@@ -22,7 +21,6 @@ def feature_params(
         numerical_features=numerical_features,
         features_to_drop=features_to_drop,
         target_col=target_col,
-        use_log_trick=True,
     )
     return params
 
@@ -43,5 +41,5 @@ def test_extract_features(feature_params: FeatureParams, dataset_path: str):
 
     target = extract_target(data, feature_params)
     assert_allclose(
-        np.log(data[feature_params.target_col].to_numpy()), target.to_numpy()
+        data[feature_params.target_col], target
     )

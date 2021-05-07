@@ -1,6 +1,9 @@
-from .model_fit_predict import (
+from .fit import (
     train_model,
     serialize_model,
+)
+
+from .predict import (
     predict_model,
     evaluate_model,
 )

@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import logging
 import logging.config
@@ -8,15 +7,15 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import yaml
 import pandas as pd
 
-from heart_disease.data import read_data, split_train_val_data
-from heart_disease.entities import (
+from src.data import read_data, split_train_val_data
+from src.entities import (
     TrainingPipelineParams,
     read_training_pipeline_params
 )
 
-from heart_disease.features import make_features
-from heart_disease.features.build_features import extract_target, build_transformer
-from heart_disease.models import (
+from src.features import make_features
+from src.features.build_features import extract_target, build_transformer
+from src.models import (
     train_model,
     serialize_model,
     predict_model,
@@ -24,7 +23,7 @@ from heart_disease.models import (
 )
 
 DEFAULT_DATASET = "./data/raw/heart.csv"
-DEFAULT_CONFIG = '.configs/train_config.yaml'
+DEFAULT_CONFIG = '.configs/train_config_log_reg.yaml'
 
 APPLICATION_NAME = "train_pipeline"
 DEFAULT_LOGGING_CONF_FILEPATH = "./configs/logging.conf.yml"
@@ -37,13 +36,6 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
     logger.info(f"data.shape is {data.shape}")
 
 
-
-
-
-
-
-
-
 def prepare_val_features_for_predict(
     train_features: pd.DataFrame, val_features: pd.DataFrame
 ):
@@ -54,39 +46,38 @@ def prepare_val_features_for_predict(
     return val_features
 
 
-def train_pipeline_callback(arguments):
+def train_pipeline_callback(params):
     """Main train_pipeline callback"""
     logger.info("Starting train train")
-    train_params = read_training_pipeline_params(arguments.config_filepath)
-    data = read_data(arguments.dataset_filepath)
+    data = read_data(params.input_data_path)
     logger.info(f"data.shape is {data.shape}")
 
     train_df, val_df = split_train_val_data(
-        data, train_params.splitting_params
+        data, params.splitting_params
     )
     logger.info(f"train_df.shape is {train_df.shape}")
     logger.info(f"val_df.shape is {val_df.shape}")
 
-    transformer = build_transformer(train_params.feature_params)
+    transformer = build_transformer(params.feature_params)
     transformer.fit(train_df)
     train_features = make_features(transformer, train_df)
-    train_target = extract_target(train_df, train_params.feature_params)
+    train_target = extract_target(train_df, params.feature_params)
 
     logger.info(f"train_features.shape is {train_features.shape}")
 
     model = train_model(
-        train_features, train_target, train_params.train_params
+        train_features, train_target, params.train_params
     )
 
     val_features = make_features(transformer, val_df)
-    val_target = extract_target(val_df, train_params.feature_params)
+    val_target = extract_target(val_df, params.feature_params)
 
     val_features_prepared = prepare_val_features_for_predict(
         train_features, val_features
     )
 
     val_features = make_features(transformer, val_df)
-    val_target = extract_target(val_df, train_params.feature_params)
+    val_target = extract_target(val_df, params.feature_params)
 
     val_features_prepared = prepare_val_features_for_predict(
         train_features, val_features
@@ -102,15 +93,19 @@ def train_pipeline_callback(arguments):
         val_target
     )
 
-    with open(train_params.metric_path, "w") as metric_file:
+    os.makedirs("metrics", exist_ok=True)
+    with open(params.metric_path, "w") as metric_file:
         json.dump(metrics, metric_file)
     logger.info(f"metrics is {metrics}")
+    logger.info(f"metrics saved to {params.metric_path,}")
 
-    path_to_model = serialize_model(model, train_params.output_model_path)
+    os.makedirs("models", exist_ok=True)
+    path_to_model = serialize_model(model, params.output_model_path)
+    logger.info(f"model saved to {params.metric_path,}")
 
     return path_to_model, metrics
 
-    logger.info("Finish train train")
+    logger.info("Finish train")
 
 
 def setup_logging(filepath=DEFAULT_LOGGING_CONF_FILEPATH):
@@ -122,12 +117,7 @@ def setup_logging(filepath=DEFAULT_LOGGING_CONF_FILEPATH):
 def setup_parser(parser):
     """Function for setup the parser"""
     parser.add_argument(
-        "-d", "--dataset", dest="dataset_filepath",
-        help="Path to dataset to load, default path is %(default)s",
-        metavar='DATASET', default=DEFAULT_DATASET,
-    )
-    parser.add_argument(
-        "-c", "--config", dest="config_filepath",
+        "-c", "--configs", dest="config_filepath",
         help="Path to configfile to load, default path is %(default)s",
         metavar='CONFIG', default=DEFAULT_CONFIG,
     )
@@ -145,7 +135,8 @@ def main():
     )
     setup_parser(parser)
     arguments = parser.parse_args()
-    arguments.callback(arguments)
+    params = read_training_pipeline_params(arguments.config_filepath)
+    arguments.callback(params)
 
 
 if __name__ == "__main__":

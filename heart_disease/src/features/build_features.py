@@ -5,7 +5,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from heart_disease.entities.feature_params import FeatureParams
+from src.entities.feature_params import FeatureParams
 
 
 def process_categorical_features(categorical_df: pd.DataFrame) -> pd.DataFrame:
@@ -59,5 +59,5 @@ def build_transformer(params: FeatureParams) -> ColumnTransformer:
 
 
 def extract_target(df: pd.DataFrame, params: FeatureParams) -> pd.Series:
-    target = df[params.target_col]
+    target = df[params.target_col].values.ravel()
     return target

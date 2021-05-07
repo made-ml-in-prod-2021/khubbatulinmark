@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from heart_disease.features.build_features import process_categorical_features
+from src.features.build_features import process_categorical_features
 
 
 @pytest.fixture()
@@ -14,7 +14,7 @@ def categorical_feature() -> str:
 
 @pytest.fixture()
 def categorical_values() -> List[str]:
-    return ["cat", "dog", "cow"]
+    return ["cat", "dog", "parrot"]
 
 
 @pytest.fixture()
@@ -35,5 +35,5 @@ def test_process_categorical_features(
     categorical_values: List[str],
 ):
     transformed: pd.DataFrame = process_categorical_features(fake_categorical_data)
-    assert transformed.shape[1] == 3
-    assert transformed.sum().sum() == 4
+    assert 3 == transformed.shape[1]
+    assert 4 == transformed.sum().sum()

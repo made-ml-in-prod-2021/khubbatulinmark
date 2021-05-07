@@ -5,7 +5,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from pandas_profiling import ProfileReport
 
-from heart_disease.data import read_data
+from src.data import read_data
 
 DEFAULT_DATASET = "./data/raw/heart.csv"
 DEFAULT_CONFIG = '.configs/make_report_config.yaml'
@@ -38,7 +38,7 @@ def setup_parser(parser):
         metavar='DATASET', default=DEFAULT_DATASET,
     )
     parser.add_argument(
-        "-c", "--config", dest="config_filepath",
+        "-c", "--configs", dest="config_filepath",
         help="Path to configfile to load, default path is %(default)s",
         metavar='CONFIG', default=DEFAULT_CONFIG,
     )
