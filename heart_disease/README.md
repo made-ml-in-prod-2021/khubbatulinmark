@@ -1,5 +1,6 @@
 Heart Disease UCI
 ==============================
+[![python-package](https://github.com/made-ml-in-prod-2021/khubbatulinmark/actions/workflows/python-package.yml/badge.svg)](https://github.com/made-ml-in-prod-2021/khubbatulinmark/actions/workflows/python-package.yml)
 
 ## Data
 
