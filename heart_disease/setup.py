@@ -13,7 +13,8 @@ setup(
         "numpy~=1.19",
         "pytest~=6.2.3",
         "py~=1.10.0",
-        "pyyaml~=5.4.1"
+        "pyyaml~=5.4.1",
+        "marshmallow-dataclass==8.3.0",
     ],
     license="MIT",
 )
