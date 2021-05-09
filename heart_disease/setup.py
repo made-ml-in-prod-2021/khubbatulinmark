@@ -16,6 +16,8 @@ setup(
         "pyyaml~=5.4.1",
         "marshmallow-dataclass==8.3.0",
         "hydra-core==1.0.6",
+        "pytest-lazy-fixture==0.6.3",
+
     ],
     license="MIT",
 )
