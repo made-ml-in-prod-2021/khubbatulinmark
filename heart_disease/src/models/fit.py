@@ -2,28 +2,19 @@ import pickle
 from typing import Union
 
 import pandas as pd
+from hydra.utils import instantiate
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
-from src.entities.train_params import TrainingParams
+from src.entities.models_params import ModelConfig
 
 SklearnRegressionModel = Union[RandomForestClassifier, LogisticRegression]
 
 
 def train_model(
-    features: pd.DataFrame, target: pd.Series, train_params: TrainingParams
+    model_params, train_features: pd.DataFrame, target: pd.Series
 ) -> SklearnRegressionModel:
-    if train_params.model_type == "RandomForestClassifier":
-        model = RandomForestClassifier(
-            n_estimators=100, random_state=train_params.random_state
-        )
-    elif train_params.model_type == "LogisticRegression":
-        model = LogisticRegression(
-            solver='liblinear', random_state=train_params.random_state
-        )
-    else:
-        raise NotImplementedError()
-    model.fit(features, target)
+    model = instantiate(model_params).fit(train_features, target)
     return model
 
 

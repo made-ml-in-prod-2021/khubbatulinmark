@@ -23,9 +23,9 @@ def split_train_val_data(
     :param
     ---------
     data : object
-        Dataset for spliting
+        Dataset for splitting
     params : object
-        Param`s for spliting dataset
+        Param`s for splitting dataset
     :return
     ---------
     Tuple

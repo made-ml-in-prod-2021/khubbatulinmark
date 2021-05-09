@@ -1,47 +1,48 @@
 import os
-from typing import List
+import pytest
 
 from py._path.local import LocalPath
 
-from src.train_pipeline import train_pipeline_callback
+from src.train_pipeline import train_pipeline
 from src.entities import (
-    TrainingPipelineParams,
+    TrainingPipelineConfig,
+    ModelConfig,
+    GeneralConfig,
     SplittingParams,
-    FeatureParams,
-    TrainingParams,
 )
 
 
+@pytest.mark.parametrize(
+    "model, model_name",
+    [
+        pytest.param(pytest.lazy_fixture('log_reg_model'), 'log-reg', id="log-reg"),
+        pytest.param(pytest.lazy_fixture('rf_model'), 'rf', id="rf"),
+    ],
+)
 def test_train_e2e(
     tmpdir: LocalPath,
-    dataset_path: str,
-    categorical_features: List[str],
-    numerical_features: List[str],
-    target_col: str,
-    features_to_drop: List[str],
+    general_config_v1: GeneralConfig,
+    split_config_v1: SplittingParams,
+    model,
+    model_name,
     caplog, capsys
 ):
     expected_output_model_path = tmpdir.join("model.pkl")
     expected_metric_path = tmpdir.join("metrics.json")
-    params = TrainingPipelineParams(
-        input_data_path=dataset_path,
-        output_model_path=expected_output_model_path,
-        metric_path=expected_metric_path,
-        splitting_params=SplittingParams(val_size=0.2, random_state=4),
-        feature_params=FeatureParams(
-            numerical_features=numerical_features,
-            categorical_features=categorical_features,
-            target_col=target_col,
-            features_to_drop=features_to_drop,
+    params = TrainingPipelineConfig(
+        model=ModelConfig(
+            model_name=model_name,
+            model_params=model,
         ),
-        train_params=TrainingParams(model_type="RandomForestClassifier"),
+        general=general_config_v1,
+        split=split_config_v1,
     )
     with caplog.at_level("DEBUG"):
 
-        real_model_path, metrics = train_pipeline_callback(params)
+        real_model_path, metrics = train_pipeline(params)
         assert metrics["accuracy"] > 0
         assert os.path.exists(real_model_path)
-        assert os.path.exists(params.metric_path)
+        assert os.path.exists(params.general.model_dir)
         captured = capsys.readouterr()
         assert '' == captured.out
         assert '' == captured.err

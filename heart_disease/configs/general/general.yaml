@@ -1,11 +1,9 @@
-input_data_path: "data/raw/heart.csv"
-output_model_path: "models/log_reg.pkl"
-metric_path: "metrics/metrics_log_reg.json"
-splitting_params:
-  val_size: 0.25
-  random_state: 42
-train_params:
-  model_type: "LogisticRegression"
+# @package _group_
+input_data_path: "../../data/raw/heart.csv"
+metric_dir: "metrics"
+model_dir: "models"
+random_state: 42
+
 feature_params:
   categorical_features:
     - "sex"
@@ -25,3 +23,4 @@ feature_params:
     - "fbs"
   target_col:
     - "target"
+

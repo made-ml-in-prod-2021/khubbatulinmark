@@ -5,7 +5,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from src.entities.feature_params import FeatureParams
+from src.entities.feature_params import FeatureParams, TransformerConfig
 
 
 def process_categorical_features(categorical_df: pd.DataFrame) -> pd.DataFrame:
@@ -40,18 +40,18 @@ def make_features(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFr
     return pd.DataFrame(transformer.transform(df))
 
 
-def build_transformer(params: FeatureParams) -> ColumnTransformer:
+def build_transformer(params: TransformerConfig) -> ColumnTransformer:
     transformer = ColumnTransformer(
         [
             (
                 "categorical_pipeline",
                 build_categorical_pipeline(),
-                params.categorical_features,
+                [c for c in params.categorical_features],
             ),
             (
                 "numerical_pipeline",
                 build_numerical_pipeline(),
-                params.numerical_features,
+                [n for n in params.numerical_features],
             ),
         ]
     )

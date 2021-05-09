@@ -1,17 +1,17 @@
-from .feature_params import FeatureParams
+from .feature_params import FeatureParams, TransformerConfig
 from .split_params import SplittingParams
-from .train_params import TrainingParams
-from .train_pipeline_params import (
-    read_training_pipeline_params,
-    TrainingPipelineParamsSchema,
-    TrainingPipelineParams,
-)
+from .config import ReportConfig, TrainingPipelineConfig, GeneralConfig
+from .models_params import LogregConfig, RFConfig, ModelConfig
+from .general_params import GeneralConfig
 
 __all__ = [
+    "GeneralConfig"
+    "ModelConfig"
+    "RFConfig"
+    "LogregConfig",
+    "TrainingPipelineConfig",
+    "ReportConfig"
+    "TransformerConfig",
     "FeatureParams",
     "SplittingParams",
-    "TrainingPipelineParams",
-    "TrainingPipelineParamsSchema",
-    "TrainingParams",
-    "read_training_pipeline_params",
 ]

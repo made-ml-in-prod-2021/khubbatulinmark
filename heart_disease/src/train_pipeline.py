@@ -1,18 +1,22 @@
 import os
 import json
+import typing
 import logging
 import logging.config
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 import yaml
+import hydra
 import pandas as pd
+from omegaconf import DictConfig, OmegaConf
 
+from src.utils import setup_logging
 from src.data import read_data, split_train_val_data
 from src.entities import (
-    TrainingPipelineParams,
-    read_training_pipeline_params
+    RFConfig,
+    LogregConfig,
+    TrainingPipelineConfig,
+    SplittingParams
 )
-
 from src.features import make_features
 from src.features.build_features import extract_target, build_transformer
 from src.models import (
@@ -22,18 +26,11 @@ from src.models import (
     evaluate_model,
 )
 
-DEFAULT_DATASET = "./data/raw/heart.csv"
-DEFAULT_CONFIG = '.configs/train_config_log_reg.yaml'
+from hydra.core.config_store import ConfigStore
+from hydra.utils import instantiate
 
 APPLICATION_NAME = "train_pipeline"
-DEFAULT_LOGGING_CONF_FILEPATH = "./configs/logging.conf.yml"
 logger = logging.getLogger(APPLICATION_NAME)
-
-
-def train_pipeline(training_pipeline_params: TrainingPipelineParams):
-    logger.info(f"start train pipeline with params {training_pipeline_params}")
-    data = read_data(training_pipeline_params.input_data_path)
-    logger.info(f"data.shape is {data.shape}")
 
 
 def prepare_val_features_for_predict(
@@ -46,38 +43,32 @@ def prepare_val_features_for_predict(
     return val_features
 
 
-def train_pipeline_callback(params):
-    """Main train_pipeline callback"""
+def train_pipeline(params: TrainingPipelineConfig):
+    """E2E train pipeline function"""
     logger.info("Starting train train")
-    data = read_data(params.input_data_path)
+
+    data = read_data(params.general.input_data_path)
     logger.info(f"data.shape is {data.shape}")
 
     train_df, val_df = split_train_val_data(
-        data, params.splitting_params
+        data, typing.cast(SplittingParams, params.split)
     )
     logger.info(f"train_df.shape is {train_df.shape}")
     logger.info(f"val_df.shape is {val_df.shape}")
-
-    transformer = build_transformer(params.feature_params)
+    transformer = build_transformer(params.general.feature_params)
     transformer.fit(train_df)
     train_features = make_features(transformer, train_df)
-    train_target = extract_target(train_df, params.feature_params)
+    train_target = extract_target(train_df, params.general.feature_params)
 
     logger.info(f"train_features.shape is {train_features.shape}")
 
     model = train_model(
-        train_features, train_target, params.train_params
+        params.model.model_params,
+        train_features, train_target
     )
 
     val_features = make_features(transformer, val_df)
-    val_target = extract_target(val_df, params.feature_params)
-
-    val_features_prepared = prepare_val_features_for_predict(
-        train_features, val_features
-    )
-
-    val_features = make_features(transformer, val_df)
-    val_target = extract_target(val_df, params.feature_params)
+    val_target = extract_target(val_df, params.general.feature_params)
 
     val_features_prepared = prepare_val_features_for_predict(
         train_features, val_features
@@ -94,49 +85,27 @@ def train_pipeline_callback(params):
     )
 
     os.makedirs("metrics", exist_ok=True)
-    with open(params.metric_path, "w") as metric_file:
+    metrics_filepath = f"metrics/{params.model.model_name}.json"
+    with open(metrics_filepath, "w") as metric_file:
         json.dump(metrics, metric_file)
     logger.info(f"metrics is {metrics}")
-    logger.info(f"metrics saved to {params.metric_path,}")
+    logger.info(f"metrics saved to {metrics_filepath,}")
 
     os.makedirs("models", exist_ok=True)
-    path_to_model = serialize_model(model, params.output_model_path)
-    logger.info(f"model saved to {params.metric_path,}")
-
-    return path_to_model, metrics
+    models_filepath = f"models/{params.model.model_name}.pkl"
+    path_to_model = serialize_model(model, models_filepath)
+    logger.info(f"model saved to {models_filepath,}")
 
     logger.info("Finish train")
+    return path_to_model, metrics
 
 
-def setup_logging(filepath=DEFAULT_LOGGING_CONF_FILEPATH):
-    """Setup logging configurations from file"""
-    with open(filepath) as config_fin:
-        logging.config.dictConfig(yaml.safe_load(config_fin))
-
-
-def setup_parser(parser):
-    """Function for setup the parser"""
-    parser.add_argument(
-        "-c", "--configs", dest="config_filepath",
-        help="Path to configfile to load, default path is %(default)s",
-        metavar='CONFIG', default=DEFAULT_CONFIG,
-    )
-    parser.set_defaults(callback=train_pipeline_callback)
-
-
-def main():
-    """Main function of the module"""
+@hydra.main(config_path='../configs', config_name='config')
+def main(cfg: DictConfig) -> None:
+    """Main function for setting logger and run train_pipeline"""
     os.makedirs("logs", exist_ok=True)
-    setup_logging()
-    parser = ArgumentParser(
-        prog="train-pipeline",
-        description="This app allows you to train a model for Heart Disease UCI prediction",
-        formatter_class=ArgumentDefaultsHelpFormatter,
-    )
-    setup_parser(parser)
-    arguments = parser.parse_args()
-    params = read_training_pipeline_params(arguments.config_filepath)
-    arguments.callback(params)
+    setup_logging(cfg.logger)
+    train_pipeline(cfg)
 
 
 if __name__ == "__main__":

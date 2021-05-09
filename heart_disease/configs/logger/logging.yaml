@@ -1,11 +1,14 @@
+# @package _group_
 version: 1
 consol_log:
   level: DEBUG
+
 formatters:
   simple:
     class: logging.Formatter
     format: "%(asctime)s %(levelname)s %(message)s"
     datefmt: "%Y-%m-%d %H:%M:%S"
+
 handlers:
   debug_handler_train:
     class: logging.FileHandler
@@ -27,6 +30,7 @@ handlers:
     filename: logs/make-report.warn
     level: WARNING
     formatter: simple
+
 loggers:
   train_pipeline:
     level: DEBUG
@@ -39,6 +43,8 @@ loggers:
 root:
   level: DEBUG
   handlers: [debug_handler_train]
+
+disable_existing_loggers: false
 
 capture: |2
                               __  __          _____  ______

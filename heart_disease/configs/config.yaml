@@ -1,0 +1,12 @@
+defaults:
+  - model: lg
+  - split: split
+  - logger: logging
+  - general: general
+  - report: report
+hydra:
+  run:
+    dir: artefacts/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: artefacts/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra.job.override_dirname}

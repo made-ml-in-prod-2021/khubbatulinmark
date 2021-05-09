@@ -9,7 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
 from src.data.make_dataset import read_data
-from src.entities import TrainingParams
+from src.entities import TrainingPipelineConfig
 from src.entities.feature_params import FeatureParams
 from src.features.build_features import build_transformer, extract_target, make_features
 from src.models.fit import serialize_model, train_model
@@ -33,16 +33,23 @@ def features_and_target(
     return features, target
 
 
-def test_train_model(features_and_target: Tuple[pd.DataFrame, pd.Series]):
+@pytest.mark.parametrize(
+    "model, model_class",
+    [
+        pytest.param(pytest.lazy_fixture('log_reg_model'), LogisticRegression, id="log-reg"),
+        pytest.param(pytest.lazy_fixture('rf_model'), RandomForestClassifier, id="rf"),
+    ],
+)
+def test_train_model(features_and_target: Tuple[pd.DataFrame, pd.Series], model, model_class):
     features, target = features_and_target
-    model = train_model(features, target, train_params=TrainingParams())
-    assert isinstance(model, LogisticRegression)
+    model = train_model(model, features, target)
+    assert isinstance(model, model_class)
     assert model.predict(features).shape[0] == target.shape[0]
 
 
 def test_serialize_model(tmpdir: LocalPath):
     expected_output = tmpdir.join("model.pkl")
-    n_estimators = 10
+    n_estimators = 100
     model = RandomForestClassifier(n_estimators=n_estimators)
     real_output = serialize_model(model, expected_output)
     assert real_output == expected_output
