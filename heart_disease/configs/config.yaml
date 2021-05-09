@@ -1,5 +1,5 @@
 defaults:
-  - model: lg
+  - model: lr
   - split: split
   - logger: logging
   - general: general

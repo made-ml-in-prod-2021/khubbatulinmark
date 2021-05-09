@@ -9,7 +9,7 @@ import hydra
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils import setup_logging
+from src.utils import setup_logging, construct_abs_path
 from src.data import read_data, split_train_val_data
 from src.entities import (
     RFConfig,
@@ -45,13 +45,13 @@ def prepare_val_features_for_predict(
 
 def train_pipeline(params: TrainingPipelineConfig):
     """E2E train pipeline function"""
-    logger.info("Starting train train")
+    logger.info("Starting train")
 
     data = read_data(params.general.input_data_path)
     logger.info(f"data.shape is {data.shape}")
 
     train_df, val_df = split_train_val_data(
-        data, typing.cast(SplittingParams, params.split)
+        data, params.split
     )
     logger.info(f"train_df.shape is {train_df.shape}")
     logger.info(f"val_df.shape is {val_df.shape}")
@@ -84,15 +84,22 @@ def train_pipeline(params: TrainingPipelineConfig):
         val_target
     )
 
-    os.makedirs("metrics", exist_ok=True)
-    metrics_filepath = f"metrics/{params.model.model_name}.json"
+    if params.general.output_hydra:
+        metrics_output_dir = params.general.metric_dir
+        model_output_dir = params.general.model_dir
+    else:
+        metrics_output_dir = construct_abs_path(params.general.metric_dir)
+        model_output_dir = construct_abs_path(params.general.model_dir)
+
+    os.makedirs(metrics_output_dir, exist_ok=True)
+    metrics_filepath = os.path.join(metrics_output_dir, f"{params.model.model_name}.json")
     with open(metrics_filepath, "w") as metric_file:
         json.dump(metrics, metric_file)
     logger.info(f"metrics is {metrics}")
     logger.info(f"metrics saved to {metrics_filepath,}")
 
-    os.makedirs("models", exist_ok=True)
-    models_filepath = f"models/{params.model.model_name}.pkl"
+    os.makedirs(model_output_dir, exist_ok=True)
+    models_filepath = os.path.join(model_output_dir, f"{params.model.model_name}.pkl")
     path_to_model = serialize_model(model, models_filepath)
     logger.info(f"model saved to {models_filepath,}")
 
@@ -101,7 +108,7 @@ def train_pipeline(params: TrainingPipelineConfig):
 
 
 @hydra.main(config_path='../configs', config_name='config')
-def main(cfg: DictConfig) -> None:
+def main(cfg: TrainingPipelineConfig) -> None:
     """Main function for setting logger and run train_pipeline"""
     os.makedirs("logs", exist_ok=True)
     setup_logging(cfg.logger)

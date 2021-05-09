@@ -2,7 +2,9 @@
 input_data_path: "../../data/raw/heart.csv"
 metric_dir: "metrics"
 model_dir: "models"
+result_dir: "predictions"
 random_state: 42
+output_hydra: true
 
 feature_params:
   categorical_features:

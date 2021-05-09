@@ -98,6 +98,7 @@ def general_config_v1(dataset_path, feature_param_v1) -> GeneralConfig:
     return GeneralConfig(
         model_dir='models',
         metric_dir='metrics',
+        result_dir='result',
         feature_params=feature_param_v1,
         input_data_path=dataset_path,
         random_state=42

@@ -24,12 +24,23 @@ python src/make_report.py
 ## Train
 #### Logistic Regression
 ~~~
-python src/train_pipeline.py model=lr
+python src/train_pipeline.py model=lr general.output_hydra=false
 ~~~
 #### Random forest
+~~~ 
+python src/train_pipeline.py model=rf general.output_hydra=false
 ~~~
-python src/train_pipeline.py model=rf
+
+## Prediction
+#### Logistic Regression
 ~~~
+python src/predict.py model.model_name=log-reg.pkl
+~~~
+#### Random forest
+~~~ 
+python src/predict.py model.model_name=rf.pkl
+~~~
+
 ## Test:
 ~~~
 pytest tests/
@@ -59,6 +70,9 @@ pytest tests/
     │   │   └── metrics               <- Models metrics
     │   └── ........................      
     ├── notebooks          <- Jupyter notebooks.
+    ├── metrics            <- Models metrics
+    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── predictions        <- Model precitions
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
     ├── tests              <- unit & intagration tests
@@ -87,7 +101,7 @@ pytest tests/
 | 7 | :ballot_box_with_check: | Используются датаклассы для сущностей из конфига, а не голые dict (3 балла) | 3 |
 | 8 | :black_square_button: | Используйте кастомный трансформер(написанный своими руками) и протестируйте его(3 балла) | 3 |
 | 9 | :ballot_box_with_check: | Обучите модель, запишите в readme как это предлагается (3 балла) | 3 |
-| 10 | :black_square_button: |Напишите функцию predict, которая примет на вход артефакт/ы от обучения, тестовую выборку(без меток) и запишет предикт, напишите в readme как это сделать (3 балла) | 3 |
+| 10 | :ballot_box_with_check: |Напишите функцию predict, которая примет на вход артефакт/ы от обучения, тестовую выборку(без меток) и запишет предикт, напишите в readme как это сделать (3 балла) | 3 |
 | 11 | :ballot_box_with_check: | Используется hydra  (https://hydra.cc/docs/intro/) (3 балла - доп баллы) | 3 |
 | 12 | :ballot_box_with_check: | Настроен CI(прогон тестов, линтера) на основе github actions  (3 балла - доп баллы (будем проходить дальше в курсе, но если есть желание поразбираться - welcome) | 3 | 
 | 13 | :ballot_box_with_check: | Проведите самооценку, опишите, в какое колво баллов по вашему мнению стоит оценить вашу работу и почему (1 балл доп баллы) | 1 |

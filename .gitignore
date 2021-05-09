@@ -9,6 +9,9 @@ __pycache__/
 # Artefact`s
 heart_disease/models
 heart_disease/metrics
+heart_disease/artefacts
+heart_disease/predictions
+
 
 # IDE
 ../.idea
