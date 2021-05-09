@@ -1,7 +1,6 @@
 Heart Disease UCI
 ==============================
 [![python-package](https://github.com/made-ml-in-prod-2021/khubbatulinmark/actions/workflows/python-package.yml/badge.svg)](https://github.com/made-ml-in-prod-2021/khubbatulinmark/actions/workflows/python-package.yml)
-
 ## Data
 
 Download [data](https://www.kaggle.com/ronitf/heart-disease-uci) and extract into folder `data/raw`
@@ -19,17 +18,17 @@ pip install -r requirements.txt
 
 ## Make Report 
 ~~~
-python heart_disease/make_report.py -d data/raw/heart.csv -o reports/data_report.html
+python src/make_report.py
 ~~~
 
 ## Train
 #### Logistic Regression
 ~~~
-python src/train_pipeline.py -c configs/train_config_log_reg.yaml
+python src/train_pipeline.py model=lr
 ~~~
 #### Random forest
 ~~~
-python src/train_pipeline.py -c configs/train_config_rf.yaml
+python src/train_pipeline.py model=rf
 ~~~
 ## Test:
 ~~~
@@ -49,10 +48,16 @@ pytest tests/
     │   ├── entities            <- Configuration ORM entities
     │   ├── features            <- Code to turn raw data into features for modeling
     │   ├── models              <- Code to train models and then use trained models to make
+    │   ├── utils               <- Utils scripts
     │   ├── make_report.py      <- Script for report generation
     │   └── train_pipeline.py   <- Script for training model
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── artefacts          <- Hydra artefacts
+    │   ├── ${now:%Y-%m-%d_%H-%M-%S}  <- Artefacts for every command
+    │   │   ├── logs                  <- Logs
+    │   │   ├── models                <- Trained and serialized models, model predictions, or model summaries
+    │   │   └── metrics               <- Models metrics
+    │   └── ........................      
     ├── notebooks          <- Jupyter notebooks.
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
@@ -80,11 +85,11 @@ pytest tests/
 | 5 | :black_square_button: | Для тестов генерируются синтетические данные, приближенные к реальным (3 баллов) | 3 |
 | 6 | :black_square_button: | Обучение модели конфигурируется с помощью конфигов в json или yaml, закоммитьте как минимум 2 корректные конфигурации, с помощью которых можно обучить модель (разные модели, стратегии split, preprocessing) (3 балла) | 3 | 
 | 7 | :ballot_box_with_check: | Используются датаклассы для сущностей из конфига, а не голые dict (3 балла) | 3 |
-| 8 | :black_square_button: | Используйте кастомный трансформер(написанный своими руками) и протестируйте его(3 балла) | 3 |
+| 8 | :ballot_box_with_check: | Используйте кастомный трансформер(написанный своими руками) и протестируйте его(3 балла) | 3 |
 | 9 | :black_square_button: | Обучите модель, запишите в readme как это предлагается (3 балла) | 3 |
 | 10 | :black_square_button: |Напишите функцию predict, которая примет на вход артефакт/ы от обучения, тестовую выборку(без меток) и запишет предикт, напишите в readme как это сделать (3 балла) | 3 |
-| 11 | :black_square_button: | Используется hydra  (https://hydra.cc/docs/intro/) (3 балла - доп баллы) | 3 |
-| 12 | :black_square_button: | Настроен CI(прогон тестов, линтера) на основе github actions  (3 балла - доп баллы (будем проходить дальше в курсе, но если есть желание поразбираться - welcome) | 3 | 
+| 11 | :ballot_box_with_check: | Используется hydra  (https://hydra.cc/docs/intro/) (3 балла - доп баллы) | 3 |
+| 12 | :ballot_box_with_check: | Настроен CI(прогон тестов, линтера) на основе github actions  (3 балла - доп баллы (будем проходить дальше в курсе, но если есть желание поразбираться - welcome) | 3 | 
 | 13 | :ballot_box_with_check: | Проведите самооценку, опишите, в какое колво баллов по вашему мнению стоит оценить вашу работу и почему (1 балл доп баллы) | 1 |
 ------------
 
