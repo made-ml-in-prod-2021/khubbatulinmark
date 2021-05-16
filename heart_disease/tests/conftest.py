@@ -15,7 +15,7 @@ from src.entities import (
 from tests.data_generator import generate_dataset
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def dataset_path() -> str:
     path = os.path.join(os.path.dirname(__file__), "dataset.zip")
     data = generate_dataset()
@@ -23,18 +23,18 @@ def dataset_path() -> str:
     return path
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def dataset(dataset_path) -> pd.DataFrame:
     data = read_data(dataset_path)
     return data
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def target_col():
     return "target"
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def categorical_features() -> List[str]:
     return [
         "sex",
@@ -48,7 +48,7 @@ def categorical_features() -> List[str]:
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def numerical_features() -> List[str]:
     return [
         "age",
@@ -59,12 +59,12 @@ def numerical_features() -> List[str]:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def features_to_drop() -> List[str]:
     return []
 
 
-@pytest.fixture()
+@pytest.fixture(scope='class')
 def log_reg_model() -> LogregConfig:
     return LogregConfig(
             _target_='sklearn.linear_model.LogisticRegression',
@@ -76,7 +76,7 @@ def log_reg_model() -> LogregConfig:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope='class')
 def rf_model() -> RFConfig:
     return RFConfig(
             _target_='sklearn.ensemble.RandomForestClassifier',
@@ -86,7 +86,7 @@ def rf_model() -> RFConfig:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope='class')
 def feature_param_v1(categorical_features,
                      numerical_features,
                      target_col,
@@ -101,7 +101,7 @@ def feature_param_v1(categorical_features,
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def general_config_v1(dataset_path, feature_param_v1) -> GeneralConfig:
     return GeneralConfig(
 
@@ -114,7 +114,7 @@ def general_config_v1(dataset_path, feature_param_v1) -> GeneralConfig:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def split_config_v1() -> SplittingParams:
     return SplittingParams(
         val_size=0.25,
