@@ -1,8 +1,10 @@
 import os
+import pandas as pd
 
 import pytest
 from typing import List
 
+from src.data.make_dataset import read_data
 from src.entities import (
     LogregConfig,
     RFConfig,
@@ -19,6 +21,12 @@ def dataset_path() -> str:
     data = generate_dataset()
     data.to_csv(path, compression="zip")
     return path
+
+
+@pytest.fixture()
+def dataset(dataset_path) -> pd.DataFrame:
+    data = read_data(dataset_path)
+    return data
 
 
 @pytest.fixture()
@@ -96,6 +104,7 @@ def feature_param_v1(categorical_features,
 @pytest.fixture()
 def general_config_v1(dataset_path, feature_param_v1) -> GeneralConfig:
     return GeneralConfig(
+
         model_dir='models',
         metric_dir='metrics',
         result_dir='result',

@@ -9,17 +9,16 @@ import hydra
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils import setup_logging, construct_abs_path
-from src.data import read_data, split_train_val_data
-from src.entities import (
+from .utils import setup_logging, construct_abs_path
+from .data import read_data, split_train_val_data
+from .entities import (
     RFConfig,
     LogregConfig,
     TrainingPipelineConfig,
     SplittingParams
 )
-from src.features import make_features
-from src.features.build_features import extract_target, build_transformer
-from src.models import (
+from .features import make_features, extract_target, build_transformer
+from .models import (
     train_model,
     serialize_model,
     predict_model,

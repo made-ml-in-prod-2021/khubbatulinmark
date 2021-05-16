@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from hydra.core.config_store import ConfigStore
-
-from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 
 

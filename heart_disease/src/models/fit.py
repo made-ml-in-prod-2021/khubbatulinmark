@@ -6,7 +6,7 @@ from hydra.utils import instantiate
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
-from src.entities.models_params import ModelConfig
+from ..entities.models_params import ModelConfig
 
 SklearnRegressionModel = Union[RandomForestClassifier, LogisticRegression]
 

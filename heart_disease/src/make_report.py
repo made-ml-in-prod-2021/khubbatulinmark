@@ -7,9 +7,9 @@ import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 from pandas_profiling import ProfileReport
 
-from src.data import read_data
-from src.entities import ReportConfig
-from src.utils import setup_logging, construct_abs_path
+from ..data import read_data
+from ..entities import ReportConfig
+from ..utils import setup_logging, construct_abs_path
 
 APPLICATION_NAME = "make_report"
 logger = logging.getLogger(APPLICATION_NAME)
