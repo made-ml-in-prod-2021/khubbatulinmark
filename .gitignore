@@ -6,6 +6,19 @@ __pycache__/
 # C extensions
 *.so
 
+# Artefact`s
+heart_disease/models
+heart_disease/metrics
+heart_disease/artefacts
+heart_disease/predictions
+
+
+# IDE
+../.idea
+
+# Logs
+/ml-project/logs
+
 # Distribution / packaging
 .Python
 build/
@@ -75,8 +88,8 @@ docs/_build/
 target/
 
 # Jupyter Notebook
+heart_disease/.ipynb_checkpoints
 .ipynb_checkpoints
-
 # IPython
 profile_default/
 ipython_config.py

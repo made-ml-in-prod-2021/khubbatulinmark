@@ -1,0 +1,61 @@
+# @package _group_
+version: 1
+consol_log:
+  level: DEBUG
+
+formatters:
+  simple:
+    class: logging.Formatter
+    format: "%(asctime)s %(levelname)s %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  debug_handler_train:
+    class: logging.FileHandler
+    filename: logs/train-pipeline.log
+    level: DEBUG
+    formatter: simple
+  warn_handler_train:
+    class: logging.FileHandler
+    filename: logs/train-pipeline.warn
+    level: WARNING
+    formatter: simple
+  debug_handler_report:
+    class: logging.FileHandler
+    filename: logs/make-report.log
+    level: DEBUG
+    formatter: simple
+  warn_handler_report:
+    class: logging.FileHandler
+    filename: logs/make-report.warn
+    level: WARNING
+    formatter: simple
+
+loggers:
+  train_pipeline:
+    level: DEBUG
+    handlers: [debug_handler_train, warn_handler_train]
+    propagate: no
+  make_report:
+    level: DEBUG
+    handlers: [debug_handler_report, warn_handler_report]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [debug_handler_train]
+
+disable_existing_loggers: false
+
+capture: |2
+                              __  __          _____  ______
+                             |  \/  |   /\   |  __ \|  ____|
+                             | \  / |  /  \  | |  | | |__
+                             | |\/| | / /\ \ | |  | |  __|
+                             | |  | |/ ____ \| |__| | |____
+    _______ _____            |_|__|_/_/_   \_\_____/|______|_____  ______ _      _____ _   _ ______
+   |__   __|  __ \     /\   |_   _| \ | |      |  __ \_   _|  __ \|  ____| |    |_   _| \ | |  ____|
+      | |  | |__) |   /  \    | | |  \| |______| |__) || | | |__) | |__  | |      | | |  \| | |__
+      | |  |  _  /   / /\ \   | | | . ` |______|  ___/ | | |  ___/|  __| | |      | | | . ` |  __|
+      | |  | | \ \  / ____ \ _| |_| |\  |      | |    _| |_| |    | |____| |____ _| |_| |\  | |____
+      |_|  |_|  \_\/_/    \_\_____|_| \_|      |_|   |_____|_|    |______|______|_____|_| \_|______|
+
