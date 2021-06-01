@@ -1,4 +1,0 @@
-# @package _group_
-dir: "reports"
-filename: "data_report.html"
-input_data_path: "data/raw/heart.csv"

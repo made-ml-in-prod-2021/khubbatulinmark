@@ -2,7 +2,7 @@ name: Python package
 
 on:
   push:
-    branches: [ main, homework1 ]
+    branches: [ main, homework1, homework3]
   pull_request:
     branches: [ main ]
 
