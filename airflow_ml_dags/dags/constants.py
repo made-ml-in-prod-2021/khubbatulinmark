@@ -3,6 +3,8 @@ import datetime
 from airflow.models import Variable
 from airflow.utils.dates import days_ago
 
+VOLUME = '/home/markh/study/made/khubbatulinmark/airflow_ml_dags/data:/data'
+
 DEFAULT_ARGS = {
     "owner": "KhubbatulinM",
     "email": ["khubbatulin@gmail.com"],
@@ -11,15 +13,18 @@ DEFAULT_ARGS = {
     "retries": 3,
     "retry_delay": datetime.timedelta(minutes=1),
 }
-
-#General
-START_DATE = days_ago(7)
-NETWORK = Variable.get("network")
-
-#Paths
+START_DATE = days_ago(8)
 DATA_VOLUME_DIR = Variable.get("data_path")
-RAW_DATA_DIR = "/data/raw/{{ ds }}"
 
+#
+# #General
+# START_DATE = days_ago(7)
+# NETWORK = Variable.get("network")
+#
+# #Paths
+# DATA_VOLUME_DIR = Variable.get("data_path")
+# RAW_DATA_DIR = "/data/raw/{{ ds }}"
+#
 
 
 

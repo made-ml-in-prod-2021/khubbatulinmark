@@ -7,6 +7,8 @@ from typing import Tuple
 
 import pandas as pd
 
+logger = logging.getLogger("airflow.task")
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -19,21 +21,20 @@ def parse_args():
 
 
 def callback_download(arguments):
-    logging.info('Start Download')
-    data = kaggle_download(arguments.output_dir)
-    logging.info('Dataset len {dataset_size}'.format(dataset_size=len(data)))
-    x, y = feature_target_split(data)
+    logger.info('Start Download')
     output_dir_path = Path(arguments.output_dir)
     output_dir_path.mkdir(exist_ok=True, parents=True)
+    data = kaggle_download()
+    logger.info('Dataset len {dataset_size}'.format(dataset_size=len(data)))
+    x, y = feature_target_split(data)
     x.to_csv(os.path.join(output_dir_path, "data.csv"), index=False)
     y.to_csv(os.path.join(output_dir_path, "target.csv"), index=False)
-    logging.info('Dataset Downloaded')
+    logger.info('Dataset Downloaded')
 
 
-def kaggle_download(output_dir: str):
-    os.system("kaggle datasets download --unzip ronitf/heart-disease-uci --path data")
-    print(os.listdir())
-    data = pd.read_csv("data/heart.csv")
+def kaggle_download():
+    os.system("kaggle datasets download --unzip ronitf/heart-disease-uci --path data/kaggle")
+    data = pd.read_csv("data/kaggle/heart.csv")
     data = data.iloc[random.sample(list(data.index), 150)]
     return data
 
@@ -51,3 +52,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

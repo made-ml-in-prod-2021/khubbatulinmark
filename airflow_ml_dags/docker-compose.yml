@@ -3,28 +3,36 @@ version: '3.7'
 x-environment: &airflow_environment
   - AIRFLOW__CORE__EXECUTOR=LocalExecutor
   - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-  - AIRFLOW__CORE__LOAD_EXAMPLES=True
-  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
+  - AIRFLOW__CORE__LOAD_EXAMPLES=False
+  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=${SQL_ALCHEMY_CONN}
   - AIRFLOW__CORE__STORE_DAG_CODE=True
   - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
   - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+  # Paths
   - AIRFLOW_VAR_DATA_PATH=${DATA_PATH}
-  - AIRFLOW_VAR_CONFIGS_PATH=${CONFIGS_PATH}
-  - AIRFLOW_VAR_NETWORK=${NETWORK_NAME}
-  - AIRFLOW_VAR_KAGGLE_USERNAME=${KAGGLE_USERNAME}
-  - AIRFLOW_VAR_KAGGLE_KEY=${KAGGLE_KEY}
+
+  # Authentication
+  - KAGGLE_USERNAME=${KAGGLE_KEY}
+  - KAGGLE_KEY=${KAGGLE_KEY}
+  # Settings for alert
+#  - AIRFLOW__SMTP__SMTP_HOST=smtp.gmail.com
+#  - AIRFLOW__SMTP__SMTP_PORT=587
+#  - AIRFLOW__SMTP__SMTP_USER=${GMAIL_USERNAME}
+#  - AIRFLOW__SMTP__SMTP_PASSWORD=${GMAIL_PASSWORD}
 
 x-airflow-image: &airflow_image apache/airflow:2.0.0-python3.6
 # ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
+
 services:
   postgres:
     image: postgres:12-alpine
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PW}
+      - POSTGRES_MULTIPLE_DATABASES=${DB_AIRFLOW}, ${DB_MLFLOW}
     ports:
       - "5432:5432"
+
   init:
     build:
       context: images/airflow-docker
@@ -35,7 +43,13 @@ services:
       - postgres
     environment: *airflow_environment
     entrypoint: /bin/bash
-    command: -c 'airflow db init && airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org'
+    command: >-
+      -c 'airflow db init
+      && airflow users create
+      --username admin --password admin
+      --firstname Anonymous --lastname Admin
+      --role Admin --email admin@example.org
+      && airflow connections add fs_default --conn-type fs'
 
   webserver:
     build:
@@ -43,14 +57,13 @@ services:
       args:
         AIRFLOW_BASE_IMAGE: *airflow_image
     image: airflow-docker
-
     restart: always
     depends_on:
       - postgres
     ports:
       - "8080:8080"
     volumes:
-      - logs:/opt/airflow/logs
+      - ./logs:/opt/airflow/logs
     environment: *airflow_environment
     command: webserver
 
@@ -60,42 +73,28 @@ services:
       args:
         AIRFLOW_BASE_IMAGE: *airflow_image
     image: airflow-docker
-
     restart: always
     depends_on:
       - postgres
     volumes:
-      - logs:/opt/airflow/logs
+      - ./logs:/opt/airflow/logs
       - ./dags/:/opt/airflow/dags/
       - ./data/:/opt/airflow/data/
       - /var/run/docker.sock:/var/run/docker.sock
+
     environment: *airflow_environment
     command: scheduler
 
-  data_download:
+  ml_base:
     build:
-      context: images/airflow-download
-    image:
-      airflow-download
+      context: images/airflow-ml-base
+    image: airflow-ml-base
     restart: "no"
-#
-#  ml_base:
-#    build:
-#      context: images/airflow-ml-base
-#    image: mikhailmar/airflow-ml-base
-#    restart: "no"
-#
-#  predict:
-#    build:
-#      context: images/airflow-predict
-#    image: mikhailmar/airflow-predict
-#    restart: "no"
-#
-#  preprocess:
-#    build:
-#      context: images/airflow-preprocess
-#    image: mikhailmar/airflow-preprocess
-#    restart: "no"
 
-volumes:
-  logs:
+  airflow-download-data:
+    build:
+      context: images/airflow-download-data
+    image: airflow-download-data
+    depends_on:
+      - ml_base
+    restart: "no"
