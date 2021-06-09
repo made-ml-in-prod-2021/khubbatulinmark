@@ -4,7 +4,10 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.utils.dates import days_ago
 from airflow.sensors.filesystem import FileSensor
 
-from constants import DEFAULT_ARGS, START_DATE, RAW_DATA_DIR, DATA_VOLUME_DIR
+from constants import (
+    DEFAULT_ARGS, START_DATE, RAW_DATA_DIR, PROCESSED_DATA_DIR, SPLITTING_DATA_DIR,
+    DATA_VOLUME_DIR, MODEL_DIR,
+)
 
 with DAG(
         "02_train_pipeline",
@@ -15,51 +18,51 @@ with DAG(
     start = DummyOperator(task_id="Begin")
 
     data_sensor = FileSensor(
-        task_id="Wait_for_data",
+        task_id="Waiting_data",
         poke_interval=10,
         retries=100,
-        filepath=f"{RAW_DATA_DIR}/data.csv",
+        filepath="data/raw/{{ ds }}/data.csv",
 
     )
 
     target_sensor = FileSensor(
-        task_id="Wait_for_target",
+        task_id="Waiting_target",
         poke_interval=10,
         retries=100,
-        filepath=f"{RAW_DATA_DIR}/target.csv",
+        filepath="data/raw/{{ ds }}/target.csv",
     )
 
     preprocess = DockerOperator(
-        task_id="Data_preprocess",
+        task_id="Preprocess",
         image="airflow-preprocess",
-        command = "/data/raw/{{ ds }} /data/processed/{{ ds }} /data/model/{{ ds }}",
+        command=f"{RAW_DATA_DIR} {PROCESSED_DATA_DIR} {MODEL_DIR}",
         network_mode="bridge",
         do_xcom_push=False,
         volumes=[f"{DATA_VOLUME_DIR}:/data"],
     )
 
     split = DockerOperator(
-        task_id="Split_data",
+        task_id="Split",
         image="airflow-split",
-        command="/data/processed/{{ ds }} /data/splitted/{{ ds }}",
+        command=f"{PROCESSED_DATA_DIR} {SPLITTING_DATA_DIR}",
         network_mode="bridge",
         do_xcom_push=False,
         volumes=[f"{DATA_VOLUME_DIR}:/data"]
     )
 
     train = DockerOperator(
-        task_id="Train_model",
+        task_id="Train",
         image="airflow-train",
-        command="/data/splitted/{{ ds }} /data/model/{{ ds }}",
+        command=F"{SPLITTING_DATA_DIR} {MODEL_DIR}",
         network_mode="bridge",
         do_xcom_push=False,
         volumes=[f"{DATA_VOLUME_DIR}:/data"]
     )
 
     validate = DockerOperator(
-        task_id="Validate_model",
+        task_id="Validate",
         image="airflow-validate",
-        command="/data/splitted/{{ ds }} /data/model/{{ ds }}",
+        command=f"{SPLITTING_DATA_DIR} {MODEL_DIR}",
         network_mode="bridge",
         do_xcom_push=False,
         volumes=[f"{DATA_VOLUME_DIR}:/data"]

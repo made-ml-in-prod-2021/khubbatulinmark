@@ -32,8 +32,8 @@ def test_dag_predict_pipeline_load(dag_bag):
 
 def test_dag_generate_data_structure(dag_bag):
     structure = {
-        "Begin": ["Generate_data"],
-        "Generate_data": ["End"],
+        "Begin": ["Download-data"],
+        "Download-data": ["End"],
         "End": [],
     }
     dag = dag_bag.dags["01_data_download"]
@@ -43,13 +43,13 @@ def test_dag_generate_data_structure(dag_bag):
 
 def test_dag_train_pipeline_structure(dag_bag):
     structure = {
-        "Begin": ["Wait_for_data", "Wait_for_target"],
-        "Wait_for_data": ["Data_preprocess"],
-        "Wait_for_target": ["Data_preprocess"],
-        "Data_preprocess": ["Split_data"],
-        "Split_data": ["Train_model"],
-        "Train_model": ["Validate_model"],
-        "Validate_model": ["End"],
+        "Begin": ["Waiting_data", "Waiting_target"],
+        "Waiting_data": ["Preprocess"],
+        "Waiting_target": ["Preprocess"],
+        "Preprocess": ["Split"],
+        "Split": ["Train"],
+        "Train": ["Validate"],
+        "Validate": ["End"],
         "End": [],
     }
     dag = dag_bag.dags["02_train_pipeline"]
@@ -59,11 +59,11 @@ def test_dag_train_pipeline_structure(dag_bag):
 
 def test_dag_predict_pipeline_structure(dag_bag):
     structure = {
-        "Begin": ["Wait_for_data", "Wait_for_scaler", "Wait_for_model"],
-        "Wait_for_data": ["Prediction"],
-        "Wait_for_scaler": ["Prediction"],
-        "Wait_for_model": ["Prediction"],
-        "Prediction": ["End"],
+        "Begin": ["Waiting_data", "Waiting_scaler", "Waiting_model"],
+        "Wait_for_data": ["Predict"],
+        "Wait_for_scaler": ["Predict"],
+        "Wait_for_model": ["Predict"],
+        "Predict": ["End"],
         "End": [],
     }
     dag = dag_bag.dags["03_predict_pipeline"]
