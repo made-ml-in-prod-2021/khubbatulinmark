@@ -1,6 +1,7 @@
 version: '3.7'
 # ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
 x-environment: &airflow_environment
+  # Base
   - AIRFLOW__CORE__EXECUTOR=LocalExecutor
   - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
   - AIRFLOW__CORE__LOAD_EXAMPLES=False
@@ -10,10 +11,19 @@ x-environment: &airflow_environment
   - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
   # Paths
   - AIRFLOW_VAR_DATA_PATH=${DATA_PATH}
-
+  - AIRFLOW_VAR_ARTIFACT_VOLUME=${ARTIFACT_VOLUME}:${ARTIFACT_PATH}
   # Authentication
   - KAGGLE_USERNAME=${KAGGLE_KEY}
   - KAGGLE_KEY=${KAGGLE_KEY}
+
+  - AIRFLOW_VAR_CONFIGS_PATH=${CONFIGS_PATH}
+  - AIRFLOW_VAR_NETWORK=${NETWORK_NAME}
+  - AIRFLOW_VAR_MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+  - AIRFLOW_VAR_MODEL_PATH=${MODEL_PATH}
+  - AIRFLOW_VAR_MODEL_NAME=${MODEL_NAME}
+  - AIRFLOW_VAR_MODEL_STAGE=${MODEL_STAGE}
+  - AIRFLOW_VAR_PROD_DIR=data/model/2021-06-09
+
   # Settings for alert
 #  - AIRFLOW__SMTP__SMTP_HOST=smtp.gmail.com
 #  - AIRFLOW__SMTP__SMTP_PORT=587
@@ -98,3 +108,69 @@ services:
     depends_on:
       - ml_base
     restart: "no"
+
+  preprocess:
+    build:
+      context: images/airflow-preprocess
+    image: airflow-preprocess
+    depends_on:
+      - ml_base
+    restart: "no"
+
+  split:
+    build:
+      context: images/airflow-split
+    image: airflow-split
+    depends_on:
+      - ml_base
+    restart: "no"
+
+  train:
+    build:
+      context: images/airflow-train
+    image: airflow-train
+    depends_on:
+      - ml_base
+    restart: "no"
+
+  validate:
+    build:
+      context: images/airflow-validate
+    image: airflow-validate
+    depends_on:
+      - ml_base
+    restart: "no"
+
+  predict:
+    build:
+      context: images/airflow-predict
+    image: airflow-predict
+    depends_on:
+      - ml_base
+    restart: "no"
+
+  mlflow:
+    build:
+      context: images/airflow-mlflow
+    image:
+      airflow-mlflow
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${ARTIFACT_VOLUME}:${ARTIFACT_PATH}
+    command:
+      - sh  # enable var  substitution
+      - -c
+      - mlflow server
+          --host 0.0.0.0
+          --port 5000
+          --backend-store-uri ${MLFLOW_TRACKING_URI}
+          --default-artifact-root ${ARTIFACT_PATH}
+
+volumes:
+  logs:
+  mlrun_data:
+    name: ${ARTIFACT_VOLUME}

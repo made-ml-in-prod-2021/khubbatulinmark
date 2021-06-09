@@ -1,12 +1,7 @@
-defaults:
-  - model: lr
-  - split: split
-  - logger: logging
-  - general: general
-  - report: report
-hydra:
-  run:
-    dir: artefacts/${now:%Y-%m-%d_%H-%M-%S}
-  sweep:
-    dir: artefacts/${now:%Y-%m-%d_%H-%M-%S}
-    subdir: ${hydra.job.override_dirname}
+input_data_path: "/data/processed/train_data.csv"
+logging_path: "/configs/logging.conf.yml"
+experiment_path: "/data/models/logreg"
+output_model_fname: "model.pkl"
+metric_fname: "metrics.json"
+test_data_path: "/data/processed/dev_data.csv"
+predict_path: "/data/models/logreg/predicts.csv"

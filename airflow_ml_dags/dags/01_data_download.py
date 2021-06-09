@@ -1,22 +1,21 @@
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 from airflow.providers.docker.operators.docker import DockerOperator
-from airflow.utils.dates import days_ago
 
-from constants import DEFAULT_ARGS, DATA_VOLUME_DIR
+from constants import DEFAULT_ARGS, RAW_DATA_DIR, DATA_VOLUME_DIR, START_DATE
 
 with DAG(
-        "1-download-data",
+        "01-download-data",
         default_args=DEFAULT_ARGS,
         schedule_interval="@daily",
-        start_date=days_ago(5),
+        start_date=START_DATE,
 ) as dag:
     start = DummyOperator(task_id="Begin")
 
 download = DockerOperator(
         task_id="Generate_data",
         image="airflow-download-data",
-        command="--output-dir /data/raw/{{ ds }}",
+        command=f"--output-dir {RAW_DATA_DIR}",
         network_mode="bridge",
         do_xcom_push=False,
         volumes=[f"{DATA_VOLUME_DIR}:/data"],
